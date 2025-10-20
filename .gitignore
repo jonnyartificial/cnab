@@ -1,0 +1,75 @@
+## Ignore Visual Studio temporary files, build results, and
+## user-specific files
+
+# Build results
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio working folder
+.vs/
+
+# Backup & VSCode settings
+*.bak
+*.orig
+.vscode/
+
+# Rider settings
+.idea/
+
+# DotCover
+*.dotCover
+
+# ASP.NET stuff
+*.Publish.xml
+publish/
+wwwroot/
+
+# NuGet
+*.nupkg
+packages/
+*.snupkg
+
+# Others
+_ReSharper*/
+*.resharper
+*.tlog
+*.log
+*.cache
+*.pdb
+
+# Entity Framework
+*.dbmdl
+*.jfm
+
+# Temporary files
+~$*
+*.tmp
+
+# Local test results
+TestResults/
+
+# Web config transforms
+web.*.config
+
+# Azure WebJobs
+App_Data/jobs/
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Windows shortcuts
+*.lnk
