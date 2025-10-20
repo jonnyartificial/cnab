@@ -6,9 +6,9 @@ namespace Cnab.Application.Commands.UploadCnabFile;
 
 public class UploadCnabFileHandler : IRequestHandler<UploadCnabFileCommand, UploadCnabFileDto>
 {
-    private readonly ITextFileParseService _textFileParserService;
+    private readonly ITextFileImportService _textFileParserService;
 
-    public UploadCnabFileHandler(ITextFileParseService textFileParserService)
+    public UploadCnabFileHandler(ITextFileImportService textFileParserService)
     {
         _textFileParserService = textFileParserService;
     }
@@ -17,7 +17,7 @@ public class UploadCnabFileHandler : IRequestHandler<UploadCnabFileCommand, Uplo
     {
         var content = new string(request.Content);
 
-        var result = await _textFileParserService.ParseAsync(content, cancellationToken);
+        var result = await _textFileParserService.ImportAsync(content, cancellationToken);
 
         return new UploadCnabFileDto
         {

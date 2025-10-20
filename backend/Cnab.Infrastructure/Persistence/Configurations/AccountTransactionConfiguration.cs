@@ -46,5 +46,10 @@ public class AccountTransactionConfiguration : IEntityTypeConfiguration<AccountT
         builder
             .Property(p => p.CreatedDateTime)
             .HasColumnType("datetime2");
+
+        //implement unique constraint to guarantee idempotence
+        builder
+            .HasIndex(p => new { p.TransactionTypeId, p.StoreId, p.Date, p.Value, p.Cpf, p.Card })
+            .IsUnique();
     }
 }

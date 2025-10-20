@@ -1,13 +1,14 @@
 ﻿using Cnab.Domain.Entities;
 using Cnab.Domain.Interfaces;
 using Cnab.Domain.ValueObjects;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace Cnab.Application.Services;
 
-public class CnabTextFileParseService : ITextFileParseService
+public class CnabTextFileImportService : ITextFileImportService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly ITransactionTypeRepository _transactionTypeRepository;
@@ -19,7 +20,7 @@ public class CnabTextFileParseService : ITextFileParseService
     private IEnumerable<TransactionType> _transactionTypes;
     private IEnumerable<Store> _stores;
 
-    public CnabTextFileParseService(
+    public CnabTextFileImportService(
         IUnitOfWork unitOfWork,
         ITransactionTypeRepository transactionTypeRepository,
         IStoreRepository storeRepository,
@@ -32,7 +33,7 @@ public class CnabTextFileParseService : ITextFileParseService
         _transactionDateTime = DateTime.UtcNow;
     }
 
-    public async Task<TextFileParseResult> ParseAsync(string content, CancellationToken cancellationToken)
+    public async Task<TextFileParseResult> ImportAsync(string content, CancellationToken cancellationToken)
     {
         //load transaction types
         _transactionTypes = await _transactionTypeRepository
@@ -61,7 +62,7 @@ public class CnabTextFileParseService : ITextFileParseService
                 if (savedItem.IsSuccess == false)
                 {
                     result.Erros++;
-                    result.Messages.Add($"Line {i + 1}: {importedItem.Message ?? ""}");
+                    result.Messages.Add($"Line {i + 1}: {savedItem.Message ?? ""}");
                 }
             }
         }
@@ -143,6 +144,14 @@ public class CnabTextFileParseService : ITextFileParseService
         try
         {
             await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch (DbUpdateException ex) when (
+            ex.InnerException is SqlException sqlEx &&
+            (sqlEx.Number == 2601 || sqlEx.Number == 2627))
+        {
+            //unique constraint violation - idempotence
+            //this record was already imported and so cannot be imported again
+            return new ImportResult(false, "This record was already imported");
         }
         catch (Exception ex)
         {

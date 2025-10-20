@@ -15,7 +15,7 @@ builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetAl
 
 //repositories
 builder.Services.AddScoped<IUnitOfWork, EfUnitOfWork>();
-builder.Services.AddScoped<ITextFileParseService, CnabTextFileParseService>();
+builder.Services.AddScoped<ITextFileImportService, CnabTextFileImportService>();
 builder.Services.AddScoped<ITransactionTypeRepository, TransactionTypeRepository>();
 builder.Services.AddScoped<IStoreRepository, StoreRepository>();
 builder.Services.AddScoped<IAccountTransactionRepository, AccountTransactionRepository>();
