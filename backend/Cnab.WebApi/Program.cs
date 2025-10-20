@@ -1,4 +1,5 @@
 using Cnab.Application.Queries.GetAllStores;
+using Cnab.Application.Services;
 using Cnab.Domain.Interfaces;
 using Cnab.Infrastructure.Persistence;
 using Cnab.Infrastructure.Repositories;
@@ -14,7 +15,8 @@ builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetAl
 
 //repositories
 builder.Services.AddScoped<IStoreRepository, StoreRepository>();
-
+builder.Services.AddScoped<ITextFileParseService, CnabTextFileParseService>();
+builder.Services.AddScoped<ITransactionTypeRepository, TransactionTypeRepository>();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

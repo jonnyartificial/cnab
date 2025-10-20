@@ -1,4 +1,5 @@
-﻿using Cnab.Domain.Interfaces;
+﻿using Cnab.Domain.Entities;
+using Cnab.Domain.Interfaces;
 using Cnab.Domain.ValueObjects;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -7,8 +8,15 @@ namespace Cnab.Application.Services;
 
 public class CnabTextFileParseService : ITextFileParseService
 {
+    private readonly ITransactionTypeRepository _transactionTypeRepository;
+
+    private readonly DateTime _transactionDateTime;
+
+    private IEnumerable<TransactionType> _transactionTypes;
+
     public CnabTextFileParseService()
     {
+        _transactionDateTime = DateTime.UtcNow;
     }
 
     public async Task<TextFileParseResult> ParseAsync(string content, CancellationToken cancellationToken)
@@ -61,7 +69,7 @@ public class CnabTextFileParseService : ITextFileParseService
         result.Value = parsedValue / 100;
 
         //parse CPF
-        //only checking if field is 11 numbers, not validating cpf formula
+        //only checking if field is 11 numbers long, not validating cpf formula
         var cpf = line.Substring(19, 11);
         if (Regex.IsMatch(cpf, @"^\d{11}$") == false)
             return new ImportResult(false, "Invalid CPF field");
@@ -74,6 +82,21 @@ public class CnabTextFileParseService : ITextFileParseService
         result.StoreName = line.Substring(62, 18).Trim();
 
         return new ImportResult(true, cnab: result);
+    }
+
+    private async Task<ImportResult> InsertRecordAsync(Cnab record, CancellationToken cancellationToken)
+    {
+        //get type
+        var type = GetTransactionType(record.Type);
+        if (type == null)
+            return new ImportResult(false, "Invalid Type");
+
+        return new ImportResult(true);
+    }
+
+    private TransactionType? GetTransactionType(int type)
+    {
+        return _transactionTypes.FirstOrDefault(p => p.Id == type);
     }
 
     private class Cnab
