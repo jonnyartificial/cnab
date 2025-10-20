@@ -59,7 +59,11 @@ public class CnabTextFileImportService : ITextFileImportService
             else
             {
                 var savedItem = await InsertRecordAsync(importedItem.Cnab!, cancellationToken);
-                if (savedItem.IsSuccess == false)
+                if (savedItem.IsSuccess)
+                {
+                    result.Imported++;
+                }
+                else
                 {
                     result.Erros++;
                     result.Messages.Add($"Line {i + 1}: {savedItem.Message ?? ""}");
