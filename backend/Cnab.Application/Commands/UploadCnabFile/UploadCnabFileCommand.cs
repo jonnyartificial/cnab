@@ -1,12 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Cnab.Application.Dto;
+using MediatR;
 
-namespace Cnab.Application.Commands.UploadCnabFile
+namespace Cnab.Application.Commands.UploadCnabFile;
+
+public class UploadCnabFileCommand : IRequest<UploadCnabFileDto>
 {
-    internal class UploadCnabFileCommand
+    public string FileName { get; }
+    public string Content { get; }
+
+    public UploadCnabFileCommand(string fileName, string content)
     {
+        FileName = fileName;
+        Content = content;
     }
 }

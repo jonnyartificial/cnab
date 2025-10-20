@@ -2,7 +2,7 @@
 using Cnab.Domain.Entities;
 using Cnab.Infrastructure.Repositories;
 
-namespace Cnab.Tests.Application;
+namespace Cnab.Tests.Application.Queries.GetAllStores;
 
 [Collection(nameof(DatabaseCollection))]
 public class GetAllStoresHandlerTests : DatabaseTest

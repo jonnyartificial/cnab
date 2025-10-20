@@ -1,0 +1,103 @@
+﻿using Cnab.Domain.Interfaces;
+using Cnab.Domain.ValueObjects;
+using System.Globalization;
+using System.Text.RegularExpressions;
+
+namespace Cnab.Application.Services;
+
+public class CnabTextFileParseService : ITextFileParseService
+{
+    public CnabTextFileParseService()
+    {
+    }
+
+    public async Task<TextFileParseResult> ParseAsync(string content, CancellationToken cancellationToken)
+    {
+        var result = new TextFileParseResult { IsSuccess = true };
+
+        var lines = content.Split(["\r\n", "\n", "\r"], StringSplitOptions.None);
+
+        for (var i = 0; i < lines.Length - 1; i++)
+        {
+            result.LinesRead++;
+            var importedItem = ParseLine(lines[i]);
+            if (importedItem.IsSuccess == false)
+            {
+                result.Erros++;
+                result.Messages.Add($"Line {i + 1}: {importedItem.Message ?? ""}");
+            }
+        }
+
+        return result;
+    }
+
+    private ImportResult ParseLine(string line)
+    {
+        if (line.Length != 80)
+            return new ImportResult(false, "Invalid Length");
+
+        var result = new Cnab();
+
+        //parse Type
+        var type = line.Substring(0, 1);
+        if (int.TryParse(type, out var parsedType) == false)
+            return new ImportResult(false, "Invalid Type field");
+        result.Type = parsedType;
+
+        //parse Date
+        var dateTime = line.Substring(1, 8) + line.Substring(42, 6);
+        if (DateTime.TryParseExact(dateTime, "yyyyMMddHHmmss",
+            CultureInfo.InvariantCulture,
+            DateTimeStyles.None,
+            out var parsedDateTime) == false)
+
+            return new ImportResult(false, "Invalid Date/Time fields");
+        result.Date = parsedDateTime;
+
+        //parse Value
+        var value = line.Substring(9, 10);
+        if (Decimal.TryParse(value, out var parsedValue) == false)
+            return new ImportResult(false, "Invalid Value field");
+        result.Value = parsedValue / 100;
+
+        //parse CPF
+        //only checking if field is 11 numbers, not validating cpf formula
+        var cpf = line.Substring(19, 11);
+        if (Regex.IsMatch(cpf, @"^\d{11}$") == false)
+            return new ImportResult(false, "Invalid CPF field");
+        result.Cpf = cpf;
+
+        //parse Card
+        result.Card = line.Substring(30, 12);
+
+        result.StoreOwner = line.Substring(48, 14).Trim();
+        result.StoreName = line.Substring(62, 18).Trim();
+
+        return new ImportResult(true, cnab: result);
+    }
+
+    private class Cnab
+    {
+        public int Type { get; set; }
+        public DateTime Date { get; set; }
+        public decimal Value { get; set; }
+        public string Cpf { get; set; } = string.Empty;
+        public string Card { get; set; } = string.Empty;
+        public string StoreOwner { get; set; } = string.Empty;
+        public string StoreName { get; set; } = string.Empty;
+    }
+
+    private class ImportResult
+    {
+        public bool IsSuccess { get; set; }
+        public string? Message { get; set; }
+        public Cnab? Cnab { get; set; }
+
+        public ImportResult(bool isSuccess, string? message = null, Cnab? cnab = null)
+        {
+            IsSuccess = isSuccess;
+            Message = message;
+            Cnab = cnab;
+        }
+    }
+}
