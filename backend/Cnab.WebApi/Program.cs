@@ -14,6 +14,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetAllStoresQuery).Assembly));
 
 //repositories
+builder.Services.AddScoped<IUnitOfWork, EfUnitOfWork>();
 builder.Services.AddScoped<IStoreRepository, StoreRepository>();
 builder.Services.AddScoped<ITextFileParseService, CnabTextFileParseService>();
 builder.Services.AddScoped<ITransactionTypeRepository, TransactionTypeRepository>();

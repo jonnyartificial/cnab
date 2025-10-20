@@ -17,6 +17,7 @@ public class CnabTextFileParseServiceTests : DatabaseTest
         var fileContent = "3201903010000014200096206760174753****3153153453JOÃO MACEDO   BAR DO JOÃO       \r\n";
         var command = new UploadCnabFileCommand("cnab.txt", fileContent);
         var handler = new UploadCnabFileHandler(new CnabTextFileParseService(
+            new EfUnitOfWork(DbContext),
             new TransactionTypeRepository(DbContext),
             new StoreRepository(DbContext)));
 
@@ -53,6 +54,7 @@ public class CnabTextFileParseServiceTests : DatabaseTest
         //arrange
         var command = new UploadCnabFileCommand("cnab.txt", fileContent);
         var handler = new UploadCnabFileHandler(new CnabTextFileParseService(
+            new EfUnitOfWork(DbContext),
             new TransactionTypeRepository(DbContext),
             new StoreRepository(DbContext)));
 

@@ -8,6 +8,7 @@ namespace Cnab.Application.Services;
 
 public class CnabTextFileParseService : ITextFileParseService
 {
+    private readonly IUnitOfWork _unitOfWork;
     private readonly ITransactionTypeRepository _transactionTypeRepository;
     private readonly IStoreRepository _storeRepository;
     private readonly DateTime _transactionDateTime;
@@ -16,9 +17,11 @@ public class CnabTextFileParseService : ITextFileParseService
     private IEnumerable<Store> _stores;
 
     public CnabTextFileParseService(
+        IUnitOfWork unitOfWork,
         ITransactionTypeRepository transactionTypeRepository,
         IStoreRepository storeRepository)
     {
+        _unitOfWork = unitOfWork;
         _transactionTypeRepository = transactionTypeRepository;
         _storeRepository = storeRepository;
         _transactionDateTime = DateTime.UtcNow;
@@ -135,7 +138,7 @@ public class CnabTextFileParseService : ITextFileParseService
         if (store == null)
         {
             var result = await _storeRepository.Add(name, cancellationToken);
-            //todo: need to implment unit of work pattern
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             _stores = await _storeRepository.GetAllStoresAsync(cancellationToken);
             return result;
