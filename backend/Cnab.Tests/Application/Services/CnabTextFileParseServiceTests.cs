@@ -1,5 +1,6 @@
 ﻿using Cnab.Application.Commands.UploadCnabFile;
 using Cnab.Application.Services;
+using Cnab.Infrastructure.Repositories;
 
 namespace Cnab.Tests.Application.Services;
 
@@ -15,7 +16,9 @@ public class CnabTextFileParseServiceTests : DatabaseTest
         //arrange
         var fileContent = "3201903010000014200096206760174753****3153153453JOÃO MACEDO   BAR DO JOÃO       \r\n";
         var command = new UploadCnabFileCommand("cnab.txt", fileContent);
-        var handler = new UploadCnabFileHandler(new CnabTextFileParseService());
+        var handler = new UploadCnabFileHandler(new CnabTextFileParseService(
+            new TransactionTypeRepository(DbContext),
+            new StoreRepository(DbContext)));
 
         //act
         var result = await handler.Handle(command, CancellationToken.None);
@@ -49,7 +52,9 @@ public class CnabTextFileParseServiceTests : DatabaseTest
     {
         //arrange
         var command = new UploadCnabFileCommand("cnab.txt", fileContent);
-        var handler = new UploadCnabFileHandler(new CnabTextFileParseService());
+        var handler = new UploadCnabFileHandler(new CnabTextFileParseService(
+            new TransactionTypeRepository(DbContext),
+            new StoreRepository(DbContext)));
 
         //act
         var result = await handler.Handle(command, CancellationToken.None);

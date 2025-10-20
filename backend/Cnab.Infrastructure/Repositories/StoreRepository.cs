@@ -14,6 +14,18 @@ public class StoreRepository : IStoreRepository
         _context = context;
     }
 
+    public async Task<Store> Add(string name, CancellationToken cancellationToken)
+    {
+        var record = new Store
+        {
+            Name = name,
+        };
+
+        await _context.AddAsync(record, cancellationToken);
+
+        return record;
+    }
+
     public async Task<IEnumerable<Store>> GetAllStoresAsync(CancellationToken cancellationToken)
     {
         return await _context.Stores

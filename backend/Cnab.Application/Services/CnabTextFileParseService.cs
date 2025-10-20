@@ -9,18 +9,31 @@ namespace Cnab.Application.Services;
 public class CnabTextFileParseService : ITextFileParseService
 {
     private readonly ITransactionTypeRepository _transactionTypeRepository;
-
+    private readonly IStoreRepository _storeRepository;
     private readonly DateTime _transactionDateTime;
 
     private IEnumerable<TransactionType> _transactionTypes;
+    private IEnumerable<Store> _stores;
 
-    public CnabTextFileParseService()
+    public CnabTextFileParseService(
+        ITransactionTypeRepository transactionTypeRepository,
+        IStoreRepository storeRepository)
     {
+        _transactionTypeRepository = transactionTypeRepository;
+        _storeRepository = storeRepository;
         _transactionDateTime = DateTime.UtcNow;
     }
 
     public async Task<TextFileParseResult> ParseAsync(string content, CancellationToken cancellationToken)
     {
+        //load transaction types
+        _transactionTypes = await _transactionTypeRepository
+            .GetAllTransactionTypesAsync(cancellationToken);
+
+        //load stores
+        _stores = await _storeRepository
+            .GetAllStoresAsync(cancellationToken);
+
         var result = new TextFileParseResult { IsSuccess = true };
 
         var lines = content.Split(["\r\n", "\n", "\r"], StringSplitOptions.None);
@@ -33,6 +46,15 @@ public class CnabTextFileParseService : ITextFileParseService
             {
                 result.Erros++;
                 result.Messages.Add($"Line {i + 1}: {importedItem.Message ?? ""}");
+            }
+            else
+            {
+                var savedItem = await InsertRecordAsync(importedItem.Cnab!, cancellationToken);
+                if (savedItem.IsSuccess == false)
+                {
+                    result.Erros++;
+                    result.Messages.Add($"Line {i + 1}: {importedItem.Message ?? ""}");
+                }
             }
         }
 
@@ -91,12 +113,35 @@ public class CnabTextFileParseService : ITextFileParseService
         if (type == null)
             return new ImportResult(false, "Invalid Type");
 
+        //get store
+        var store = await GetStoreAsync(record.StoreName, cancellationToken);
+
         return new ImportResult(true);
     }
 
     private TransactionType? GetTransactionType(int type)
     {
         return _transactionTypes.FirstOrDefault(p => p.Id == type);
+    }
+
+    private async Task<Store> GetStoreAsync(string name, CancellationToken cancellationToken)
+    {
+        //find if store already exist
+        var store = _stores.FirstOrDefault(
+            p =>
+                string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase));
+
+        //if store doesn't exist, create record and reload cached data
+        if (store == null)
+        {
+            var result = await _storeRepository.Add(name, cancellationToken);
+            //todo: need to implment unit of work pattern
+
+            _stores = await _storeRepository.GetAllStoresAsync(cancellationToken);
+            return result;
+        }
+
+        return store;
     }
 
     private class Cnab
