@@ -1,6 +1,7 @@
 ﻿using Cnab.Application.Commands.UploadCnabFile;
 using Cnab.Application.Services;
 using Cnab.Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace Cnab.Tests.Application.Services;
 
@@ -19,7 +20,8 @@ public class CnabTextFileParseServiceTests : DatabaseTest
         var handler = new UploadCnabFileHandler(new CnabTextFileParseService(
             new EfUnitOfWork(DbContext),
             new TransactionTypeRepository(DbContext),
-            new StoreRepository(DbContext)));
+            new StoreRepository(DbContext),
+            new AccountTransactionRepository(DbContext)));
 
         //act
         var result = await handler.Handle(command, CancellationToken.None);
@@ -31,6 +33,24 @@ public class CnabTextFileParseServiceTests : DatabaseTest
         Assert.Equal(0, result.Errors);
         Assert.Equal(0, result.Imported);
         Assert.Empty(result.Messages);
+
+        var accountTransactions = await DbContext.AccountTransactions
+            .Include(p => p.TransactionType)
+            .Include(p => p.Store)
+            .ToListAsync();
+
+        Assert.NotNull(accountTransactions);
+        Assert.Single(accountTransactions);
+
+        var record = accountTransactions.First();
+        Assert.NotNull(record.TransactionType);
+        Assert.Equal(3, record.TransactionType.Id);
+        Assert.Equal("BAR DO JOÃO", record.Store.Name);
+        Assert.Equal(new DateTime(2019, 03, 01, 15, 34, 53), record.Date);
+        Assert.Equal(142.00m, record.Value);
+        Assert.Equal("09620676017", record.Cpf);
+        Assert.Equal("4753****3153", record.Card);
+        Assert.Equal("JOÃO MACEDO", record.StoreOwner);
     }
 
     [Theory]
@@ -56,7 +76,8 @@ public class CnabTextFileParseServiceTests : DatabaseTest
         var handler = new UploadCnabFileHandler(new CnabTextFileParseService(
             new EfUnitOfWork(DbContext),
             new TransactionTypeRepository(DbContext),
-            new StoreRepository(DbContext)));
+            new StoreRepository(DbContext),
+            new AccountTransactionRepository(DbContext)));
 
         //act
         var result = await handler.Handle(command, CancellationToken.None);

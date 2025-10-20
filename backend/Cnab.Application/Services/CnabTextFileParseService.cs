@@ -1,6 +1,7 @@
 ﻿using Cnab.Domain.Entities;
 using Cnab.Domain.Interfaces;
 using Cnab.Domain.ValueObjects;
+using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
@@ -11,6 +12,8 @@ public class CnabTextFileParseService : ITextFileParseService
     private readonly IUnitOfWork _unitOfWork;
     private readonly ITransactionTypeRepository _transactionTypeRepository;
     private readonly IStoreRepository _storeRepository;
+    private readonly IAccountTransactionRepository _accountTransactionRepository;
+
     private readonly DateTime _transactionDateTime;
 
     private IEnumerable<TransactionType> _transactionTypes;
@@ -19,11 +22,13 @@ public class CnabTextFileParseService : ITextFileParseService
     public CnabTextFileParseService(
         IUnitOfWork unitOfWork,
         ITransactionTypeRepository transactionTypeRepository,
-        IStoreRepository storeRepository)
+        IStoreRepository storeRepository,
+        IAccountTransactionRepository accountTransactionRepository)
     {
         _unitOfWork = unitOfWork;
         _transactionTypeRepository = transactionTypeRepository;
         _storeRepository = storeRepository;
+        _accountTransactionRepository = accountTransactionRepository;
         _transactionDateTime = DateTime.UtcNow;
     }
 
@@ -118,6 +123,31 @@ public class CnabTextFileParseService : ITextFileParseService
 
         //get store
         var store = await GetStoreAsync(record.StoreName, cancellationToken);
+
+        //create entity
+        var accountTransaction = new AccountTransaction
+        {
+            TransactionTypeId = type.Id,
+            StoreId = store.Id,
+            Date = record.Date,
+            Value = record.Value,
+            Cpf = record.Cpf,
+            Card = record.Card,
+            StoreOwner = record.StoreOwner,
+            CreatedDateTime = _transactionDateTime
+        };
+
+        //add entity to db
+        await _accountTransactionRepository.AddAsync(accountTransaction, cancellationToken);
+
+        try
+        {
+            await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            return new ImportResult(false, "There was an error and this record cannot be imported");
+        }
 
         return new ImportResult(true);
     }
