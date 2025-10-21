@@ -1,13 +1,9 @@
-import { useState } from "react";
-import "./App.css";
-import StoreDropdown from "./components/StoreDropdown";
+import MainPage from "./pages/MainPage";
 
 function App() {
-  const handleStoreSelect = (storeId: number) => {};
-
   return (
     <>
-      <StoreDropdown onSelect={handleStoreSelect} />
+      <MainPage />
     </>
   );
 }

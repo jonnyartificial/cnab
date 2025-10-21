@@ -28,8 +28,9 @@ const StoreDropdown: React.FC<StoreDropdownProps> = ({ onSelect }) => {
       <select
         onChange={(e) => onSelect(Number(e.target.value))}
         defaultValue=""
+        style={{ minWidth: "300px" }}
       >
-        <option value="">-- store --</option>
+        <option value="">-- SELECT A STORE --</option>
         {stores.map((store) => (
           <option key={store.id} value={store.id}>
             {store.name}
