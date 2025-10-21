@@ -21,7 +21,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:9910
-      - ConnectionStrings__DefaultConnection=Server=db;Database=MyAppDb;User Id=sa;Password=LetMeIn123;Encrypt=False;
+      - ConnectionStrings__DefaultConnection=Server=db;Database=cnab-prod;User Id=sa;Password=LetMeIn123;Encrypt=False;
     networks:
       - app-network
 

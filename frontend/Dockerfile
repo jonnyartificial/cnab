@@ -2,9 +2,10 @@ FROM node:20 AS build
 WORKDIR /app
 
 COPY package*.json ./
-COPY .env ./
 RUN npm install
 COPY . .
+RUN rm -f .env .env.local
+COPY .env.docker .env
 RUN npm run build
 
 
