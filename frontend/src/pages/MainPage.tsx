@@ -7,9 +7,10 @@ import FileUploader from "../components/FileUploader";
 
 const apiUrl = import.meta.env.VITE_APP_API_URL;
 
-const StoreTransactions: React.FC = () => {
+const MainPage: React.FC = () => {
   const [selectedStoreId, setSelectedStoreId] = useState<number | null>(null);
   const [transactions, setTransactions] = useState<AccountTransaction[]>([]);
+  const [storeRefreshKey, setStoreRefreshKey] = useState<number>(0);
 
   const loadTransactions = async (storeId: number) => {
     try {
@@ -30,8 +31,9 @@ const StoreTransactions: React.FC = () => {
 
   const handleUploadSuccess = () => {
     if (selectedStoreId !== null) {
-      loadTransactions(selectedStoreId); // Refresh
+      loadTransactions(selectedStoreId);
     }
+    setStoreRefreshKey((p) => p + 1);
   };
 
   return (
@@ -41,10 +43,13 @@ const StoreTransactions: React.FC = () => {
         onUploadSuccess={handleUploadSuccess}
         style={{ textAlign: "right" }}
       />
-      <StoreDropdown onSelect={handleStoreSelect} />
+      <StoreDropdown
+        onSelect={handleStoreSelect}
+        refreshKey={storeRefreshKey}
+      />
       <TransactionGrid transactions={transactions} />
     </div>
   );
 };
 
-export default StoreTransactions;
+export default MainPage;

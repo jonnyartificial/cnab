@@ -58,7 +58,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
       dialogRef.current?.showModal();
     } finally {
       setUploading(false);
-      event.target.value = ""; // Clear input
+      event.target.value = "";
     }
   };
 
@@ -88,11 +88,11 @@ const FileUploader: React.FC<FileUploaderProps> = ({
           ) : result ? (
             <div style={{ textAlign: "left" }}>
               <strong>CNAB File Import Summary</strong>
-              <p>
+              <div>
                 <div>Lines Read: {result.linesRead}</div>
                 <div>Errors: {result.errors}</div>
                 <div>Imported: {result.imported}</div>
-              </p>
+              </div>
               <div>Error Messages:</div>
               {result.messages.length > 0 && (
                 <div

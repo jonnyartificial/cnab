@@ -8,11 +8,15 @@ type Store = {
 
 interface StoreDropdownProps {
   onSelect: (storeId: number) => void;
+  refreshKey?: number;
 }
 
 const apiUrl = import.meta.env.VITE_APP_API_URL;
 
-const StoreDropdown: React.FC<StoreDropdownProps> = ({ onSelect }) => {
+const StoreDropdown: React.FC<StoreDropdownProps> = ({
+  onSelect,
+  refreshKey,
+}) => {
   const [stores, setStores] = useState<Store[]>([]);
 
   useEffect(() => {
@@ -20,7 +24,7 @@ const StoreDropdown: React.FC<StoreDropdownProps> = ({ onSelect }) => {
       .get<Store[]>(`${apiUrl}/api/store`)
       .then((res) => setStores(res.data))
       .catch((err) => console.error("Error loading stores", err));
-  }, []);
+  }, [refreshKey]);
 
   return (
     <div>
