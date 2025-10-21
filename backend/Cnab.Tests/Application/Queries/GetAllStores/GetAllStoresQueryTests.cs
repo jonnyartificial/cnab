@@ -5,9 +5,9 @@ using Cnab.Infrastructure.Repositories;
 namespace Cnab.Tests.Application.Queries.GetAllStores;
 
 [Collection(nameof(DatabaseCollection))]
-public class GetAllStoresHandlerTests : DatabaseTest
+public class GetAllStoresQueryTests : DatabaseTest
 {
-    public GetAllStoresHandlerTests(DatabaseFixture fixture) : base(fixture)
+    public GetAllStoresQueryTests(DatabaseFixture fixture) : base(fixture)
     {
     }
 

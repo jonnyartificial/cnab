@@ -5,9 +5,9 @@ using Cnab.Infrastructure.Repositories;
 namespace Cnab.Tests.Application.Queries.GetAccountTransactions;
 
 [Collection(nameof(DatabaseCollection))]
-public class GetAccountTransactionsHandlerTests : DatabaseTest
+public class GetAccountTransactionsQueryTests : DatabaseTest
 {
-    public GetAccountTransactionsHandlerTests(DatabaseFixture fixture) : base(fixture)
+    public GetAccountTransactionsQueryTests(DatabaseFixture fixture) : base(fixture)
     {
     }
 

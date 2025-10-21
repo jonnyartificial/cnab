@@ -128,7 +128,8 @@ public class CnabTextFileImportServiceTests : DatabaseTest
 
     private UploadCnabFileHandler GetHandler()
     {
-         return new UploadCnabFileHandler(new CnabTextFileImportService(
+         return new UploadCnabFileHandler(
+            new CnabTextFileImportService(
             new EfUnitOfWork(DbContext),
             new TransactionTypeRepository(DbContext),
             new StoreRepository(DbContext),
