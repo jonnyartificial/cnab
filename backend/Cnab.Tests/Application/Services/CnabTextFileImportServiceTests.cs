@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Cnab.Tests.Application.Services;
 
+[Collection(nameof(DatabaseCollection))]
 public class CnabTextFileImportServiceTests : DatabaseTest
 {
     public CnabTextFileImportServiceTests(DatabaseFixture fixture) : base(fixture)
@@ -27,7 +28,7 @@ public class CnabTextFileImportServiceTests : DatabaseTest
         Assert.True(result.IsSuccess);
         Assert.Equal(1, result.LinesRead);
         Assert.Equal(0, result.Errors);
-        Assert.Equal(0, result.Imported);
+        Assert.Equal(1, result.Imported);
         Assert.Empty(result.Messages);
 
         var accountTransactions = await DbContext.AccountTransactions

@@ -1,12 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Cnab.Application.Dto;
+using MediatR;
 
-namespace Cnab.Application.Queries.GetAccountTransactions
+namespace Cnab.Application.Queries.GetAccountTransactions;
+
+public class GetAccountTransactionsQuery : IRequest<IEnumerable<AccountTransactionDto>>
 {
-    internal class GetAccountTransactionsQuery
+    public int StoreId { get; set; }
+
+    public GetAccountTransactionsQuery(int storeId)
     {
+        StoreId = storeId;
     }
 }
